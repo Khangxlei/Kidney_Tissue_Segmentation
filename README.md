@@ -1,7 +1,7 @@
 # Kidney_Tissue_Segmentation
 
 **1. Clone repository**
-  - git clone https://github.com/your-username/your-repository.git
+  - git clone https://github.com/Khangxlei/Kidney_Tissue_Segmentation/
 
 **2. Ensure data files**
   - Place the source and target data files in the correct directory within the project.
