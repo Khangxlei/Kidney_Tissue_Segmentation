@@ -151,28 +151,7 @@ for img_idx in range(len(test_names)):
     input_image = sam_model.preprocess(resize_img_tensor[None,:,:,:]) # (1, 3, 1024, 1024)
     assert input_image.shape == (1, 3, sam_model.image_encoder.img_size, sam_model.image_encoder.img_size), 'input image should be resized to 1024*1024'
 
-
-
     
-    if not os.path.exists(output_folder):
-        os.mkdir(output_folder)
-
-    output_file_name = 'output_' + test_names[img_idx]
-    cv2.imwrite(output_folder + output_file_name, overlay)
-
-    segmented = np.sum((medsam_seg > 0) & (grayscale_image < 255))
-
-    cortex_percentage = (segmented / non_white_pixels) * 100
-    formatted_percentage = "{:.2f}\n".format(cortex_percentage)    
-    id = test_names[img_idx][:-4]
-
-    data['ID'].append(int(id))
-    data['Calculated Percentage'].append(cortex_percentage)
-    data['Labeled Percentage'].append(labeled_data[int(id)])
-    data['Error'].append(abs(cortex_percentage - labeled_data[int(id)]))
-
-
-
     with torch.no_grad():
         # pre-compute the image embedding
         ts_img_embedding = sam_model.image_encoder(input_image)
@@ -222,7 +201,26 @@ for img_idx in range(len(test_names)):
     # Save the overlaid image as a JPEG file
     output_folder = 'annotated_images/'
 
+
+
     
+    if not os.path.exists(output_folder):
+        os.mkdir(output_folder)
+
+    output_file_name = 'output_' + test_names[img_idx]
+    cv2.imwrite(output_folder + output_file_name, overlay)
+
+    segmented = np.sum((medsam_seg > 0) & (grayscale_image < 255))
+
+    cortex_percentage = (segmented / non_white_pixels) * 100
+    formatted_percentage = "{:.2f}\n".format(cortex_percentage)    
+    id = test_names[img_idx][:-4]
+
+    data['ID'].append(int(id))
+    data['Calculated Percentage'].append(cortex_percentage)
+    data['Labeled Percentage'].append(labeled_data[int(id)])
+    data['Error'].append(abs(cortex_percentage - labeled_data[int(id)]))
+
 
 csv = pd.read_csv('results/data.csv')
 df = pd.DataFrame(data)
