@@ -115,7 +115,23 @@ def process(gt_name: str, image_name: str):
         image_data = io.imread(join(args.img_path, image_name))
         # Remove any alpha channel if present.
 
-
+        if image_data.shape[-1] > 3 and len(image_data.shape) == 3:
+            image_data = image_data[:, :, :3]
+        # If image is grayscale, then repeat the last channel to convert to rgb
+        if len(image_data.shape) == 2:
+            image_data = np.repeat(image_data[:, :, None], 3, axis=-1)
+        # nii preprocess start
+        lower_bound, upper_bound = np.percentile(image_data, 0.5), np.percentile(
+            image_data, 99.5
+        )
+        image_data_pre = np.clip(image_data, lower_bound, upper_bound)
+        # min-max normalize and scale
+        image_data_pre = (
+            (image_data_pre - np.min(image_data_pre))
+            / (np.max(image_data_pre) - np.min(image_data_pre))
+            * 255.0
+        )
+        image_data_pre[image_data == 0] = 0
         image_data_pre = transform.resize(
             image_data_pre,
             (args.image_size, args.image_size),
