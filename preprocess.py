@@ -114,6 +114,24 @@ def process(gt_name: str, image_name: str):
 
         image_data = io.imread(join(args.img_path, image_name))
         # Remove any alpha channel if present.
+
+
+        image_data_pre = transform.resize(
+            image_data_pre,
+            (args.image_size, args.image_size),
+            order=3,
+            preserve_range=True,
+            mode="constant",
+            anti_aliasing=True,
+        )
+        image_data_pre = np.uint8(image_data_pre)
+
+        print("Image name:", image_name)
+
+        imgs.append(image_data_pre)
+        
+
+        
         if image_data.shape[-1] > 3 and len(image_data.shape) == 3:
             image_data = image_data[:, :, :3]
         # If image is grayscale, then repeat the last channel to convert to rgb
@@ -131,20 +149,6 @@ def process(gt_name: str, image_name: str):
             * 255.0
         )
         image_data_pre[image_data == 0] = 0
-
-        image_data_pre = transform.resize(
-            image_data_pre,
-            (args.image_size, args.image_size),
-            order=3,
-            preserve_range=True,
-            mode="constant",
-            anti_aliasing=True,
-        )
-        image_data_pre = np.uint8(image_data_pre)
-
-        print("Image name:", image_name)
-
-        imgs.append(image_data_pre)
 
         assert np.sum(gt_data) > 50, "ground truth should have more than 100 pixels"
 
